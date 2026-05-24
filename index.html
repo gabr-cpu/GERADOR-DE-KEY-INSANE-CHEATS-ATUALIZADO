@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>INSANE PANEL</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#070707;
+color:white;
+height:100vh;
+display:flex;
+overflow:hidden;
+}
+
+/* LOGIN */
+
+#loginScreen{
+position:fixed;
+width:100%;
+height:100%;
+background:#050505;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+.login-box{
+width:420px;
+background:#111;
+padding:35px;
+border-radius:25px;
+box-shadow:0 0 40px rgba(255,0,0,0.2);
+}
+
+.login-logo{
+font-size:60px;
+font-weight:900;
+font-style:italic;
+color:#ff0000;
+text-align:center;
+text-shadow:0 0 15px red;
+}
+
+.login-sub{
+text-align:center;
+color:#666;
+margin-top:5px;
+margin-bottom:30px;
+}
+
+.login-box input{
+width:100%;
+padding:16px;
+background:#181818;
+border:none;
+border-radius:15px;
+margin-bottom:15px;
+color:white;
+font-size:15px;
+outline:none;
+}
+
+.login-btn{
+width:100%;
+padding:16px;
+border:none;
+border-radius:15px;
+background:linear-gradient(45deg,#ff0000,#ff3333);
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* MENU */
+
+.sidebar{
+width:260px;
+background:#111;
+padding:20px;
+display:flex;
+flex-direction:column;
+border-right:1px solid rgba(255,255,255,0.05);
+}
+
+.logo{
+font-size:50px;
+font-style:italic;
+font-weight:900;
+color:#ff0000;
+text-shadow:0 0 15px red;
+}
+
+.sublogo{
+font-size:13px;
+color:#666;
+margin-top:5px;
+margin-bottom:40px;
+}
+
+.menu{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.menu button{
+background:#181818;
+border:none;
+padding:18px;
+border-radius:15px;
+color:white;
+font-size:15px;
+text-align:left;
+cursor:pointer;
+transition:0.3s;
+}
+
+.menu button:hover{
+background:#ff0000;
+transform:translateX(5px);
+}
+
+.menu i{
+margin-right:10px;
+}
+
+.profile{
+margin-top:auto;
+background:#181818;
+padding:18px;
+border-radius:18px;
+}
+
+.profile h3{
+color:#ff4444;
+}
+
+/* CONTENT */
+
+.content{
+flex:1;
+padding:30px;
+overflow:auto;
+}
+
+.page{
+display:none;
+}
+
+.page.active{
+display:block;
+}
+
+.title{
+font-size:45px;
+font-style:italic;
+margin-bottom:25px;
+}
+
+.title span{
+color:#ff0000;
+}
+
+/* CARD */
+
+.card{
+background:#141414;
+padding:25px;
+border-radius:25px;
+}
+
+.card h2{
+font-size:30px;
+font-style:italic;
+margin-bottom:20px;
+}
+
+.card label{
+display:block;
+margin-bottom:10px;
+color:#777;
+}
+
+.card input{
+width:100%;
+padding:16px;
+background:#0d0d0d;
+border:none;
+border-radius:15px;
+color:white;
+outline:none;
+margin-bottom:15px;
+}
+
+.generate{
+width:100%;
+padding:17px;
+border:none;
+border-radius:15px;
+background:linear-gradient(45deg,#ff0000,#ff3333);
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.lastkey{
+margin-top:25px;
+background:#0d0d0d;
+padding:20px;
+border-radius:18px;
+}
+
+.lastkey p{
+color:#666;
+font-size:13px;
+}
+
+.lastkey h3{
+margin-top:10px;
+font-size:28px;
+color:#ff0000;
+}
+
+/* KEYS */
+
+.keylist{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.key{
+background:#141414;
+padding:18px;
+border-radius:18px;
+}
+
+.keytop{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.keycode{
+font-size:18px;
+font-weight:bold;
+color:#00ff88;
+}
+
+.info{
+margin-top:10px;
+color:#777;
+font-size:14px;
+}
+
+.btns{
+display:flex;
+gap:8px;
+}
+
+.smallbtn{
+padding:8px 14px;
+border:none;
+border-radius:10px;
+font-size:12px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.pause{
+background:#3b2c00;
+color:#ffaa00;
+}
+
+.play{
+background:#003d1c;
+color:#00ff88;
+}
+
+.delete{
+background:#220000;
+color:#ff4444;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginScreen">
+
+<div class="login-box">
+
+<div class="login-logo">
+INSANE
+</div>
+
+<div class="login-sub">
+PAINEL ADMIN
+</div>
+
+<input
+type="text"
+id="user"
+placeholder="Usuário"
+/>
+
+<input
+type="password"
+id="pass"
+placeholder="Senha"
+/>
+
+<button
+class="login-btn"
+onclick="login()">
+ENTRAR
+</button>
+
+</div>
+
+</div>
+
+<!-- MENU -->
+
+<div class="sidebar">
+
+<div>
+
+<div class="logo">
+INSANE
+</div>
+
+<div class="sublogo">
+PAINEL ADMIN
+</div>
+
+<div class="menu">
+
+<button onclick="mostrarPagina('gerar')">
+<i class="fa-solid fa-key"></i>
+Gerar Keys
+</button>
+
+<button onclick="mostrarPagina('keys')">
+<i class="fa-solid fa-list"></i>
+Minhas Keys
+</button>
+
+</div>
+
+</div>
+
+<div class="profile">
+
+<h3>ADMIN</h3>
+
+<p style="margin-top:5px;color:#777;">
+Sistema Online
+</p>
+
+</div>
+
+</div>
+
+<!-- CONTEUDO -->
+
+<div class="content">
+
+<!-- GERAR -->
+
+<div class="page active" id="gerar">
+
+<div class="title">
+GERAR <span>KEYS</span>
+</div>
+
+<div class="card">
+
+<h2>NOVA KEY</h2>
+
+<label>Dias da key</label>
+
+<input
+type="number"
+id="dias"
+placeholder="Ex: 30"
+/>
+
+<button
+class="generate"
+onclick="gerarKey()">
+GERAR KEY
+</button>
+
+<div class="lastkey">
+
+<p>ÚLTIMA KEY</p>
+
+<h3 id="ultimakey">
+INSANE-00000
+</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- KEYS -->
+
+<div class="page" id="keys">
+
+<div class="title">
+MINHAS <span>KEYS</span>
+</div>
+
+<div class="keylist" id="listaKeys">
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const SUPABASE_URL =
+"https://oalyokjoixouwywxfmtz.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_kg2nublKacXnCFQWQaA0QA_jv1C_-Hp";
+
+const supabaseClient =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+/* LOGIN */
+
+function login(){
+
+let user =
+document.getElementById("user").value;
+
+let pass =
+document.getElementById("pass").value;
+
+if(
+user == "insane" &&
+pass == "cheats"
+){
+
+document.getElementById("loginScreen")
+.style.display = "none";
+
+}else{
+
+alert("Login inválido");
+
+}
+
+}
+
+/* MENU */
+
+function mostrarPagina(id){
+
+document
+.querySelectorAll(".page")
+.forEach(pagina => {
+
+pagina.classList.remove("active");
+
+});
+
+document
+.getElementById(id)
+.classList.add("active");
+
+}
+
+/* GERAR KEY */
+
+async function gerarKey(){
+
+let numero =
+Math.floor(
+10000 + Math.random() * 90000
+);
+
+let key =
+"INSANE-" + numero;
+
+let dias =
+document.getElementById("dias").value;
+
+if(dias == ""){
+
+alert("Digite os dias");
+
+return;
+
+}
+
+await supabaseClient
+.from("keys")
+.insert([
+{
+key:key,
+duracao:dias + " DIAS",
+paused:false,
+deleted:false
+}
+]);
+
+document.getElementById("ultimakey")
+.innerHTML = key;
+
+carregarKeys();
+
+}
+
+/* CARREGAR KEYS */
+
+async function carregarKeys(){
+
+const { data } =
+await supabaseClient
+.from("keys")
+.select("*")
+.order("id",{ascending:false});
+
+const area =
+document.getElementById("listaKeys");
+
+area.innerHTML = "";
+
+data.forEach(item => {
+
+if(item.deleted == true) return;
+
+area.innerHTML += `
+
+<div class="key">
+
+<div class="keytop">
+
+<div>
+
+<div class="keycode">
+${item.key}
+</div>
+
+<div class="info">
+${item.duracao}
+</div>
+
+</div>
+
+<div class="btns">
+
+<button
+class="smallbtn ${
+item.paused
+? 'play'
+: 'pause'
+}"
+onclick="togglePause('${item.key}', ${item.paused})">
+
+${
+item.paused
+? 'PLAY'
+: 'PAUSE'
+}
+
+</button>
+
+<button
+class="smallbtn delete"
+onclick="deletar('${item.key}')">
+
+DELETE
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+/* PAUSAR */
+
+async function togglePause(key, paused){
+
+await supabaseClient
+.from("keys")
+.update({
+paused:!paused
+})
+.eq("key",key);
+
+carregarKeys();
+
+}
+
+/* DELETAR */
+
+async function deletar(key){
+
+await supabaseClient
+.from("keys")
+.update({
+deleted:true
+})
+.eq("key",key);
+
+carregarKeys();
+
+}
+
+carregarKeys();
+
+</script>
+
+</body>
+</html>
