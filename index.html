@@ -316,10 +316,29 @@ font-size:18px;
 color:#00ff88;
 }
 
+/* TOAST */
+
+#toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#111;
+color:white;
+padding:15px 20px;
+border-radius:15px;
+display:none;
+z-index:9999;
+font-weight:bold;
+box-shadow:0 0 20px rgba(255,0,0,0.3);
+border:1px solid #ff0000;
+}
+
 </style>
 </head>
 
 <body>
+
+<div id="toast">MSG</div>
 
 <!-- LOGIN -->
 
@@ -574,6 +593,23 @@ SUPABASE_KEY
 let vendedorLogado = null;
 let admin = false;
 
+function mostrarMensagem(texto){
+
+const toast =
+document.getElementById("toast");
+
+toast.innerHTML = texto;
+
+toast.style.display = "block";
+
+setTimeout(() => {
+
+toast.style.display = "none";
+
+},3000);
+
+}
+
 /* ABRIR TELAS */
 
 function abrirAdm(){
@@ -626,10 +662,11 @@ document.getElementById("creditosArea")
 .innerHTML = "CRÉDITOS ILIMITADOS";
 
 carregarVendedores();
+carregarKeys();
 
 }else{
 
-alert("Login inválido");
+mostrarMensagem("Login inválido");
 
 }
 
@@ -647,7 +684,7 @@ document.getElementById("vpass").value;
 
 if(usuario == "" || senha == ""){
 
-alert("Preencha tudo");
+mostrarMensagem("Preencha tudo");
 
 return;
 
@@ -661,7 +698,7 @@ await supabaseClient
 
 if(data.length > 0){
 
-alert("Usuário já existe");
+mostrarMensagem("Usuário já existe");
 
 return;
 
@@ -677,7 +714,7 @@ creditos:0
 }
 ]);
 
-alert("Conta criada");
+mostrarMensagem("Conta criada");
 
 }
 
@@ -700,7 +737,7 @@ await supabaseClient
 
 if(data.length == 0){
 
-alert("Conta inválida");
+mostrarMensagem("Conta inválida");
 
 return;
 
@@ -725,6 +762,10 @@ document.getElementById("creditosArea")
 .innerHTML =
 "SEUS CRÉDITOS: " +
 vendedorLogado.creditos;
+
+mostrarMensagem("Login feito");
+
+carregarKeys();
 
 }
 
@@ -764,7 +805,7 @@ if(!admin){
 
 if(vendedorLogado.creditos < preco){
 
-alert("Sem créditos");
+mostrarMensagem("Sem créditos");
 
 return;
 
@@ -816,6 +857,8 @@ admin
 
 document.getElementById("ultimakey")
 .innerHTML = key;
+
+mostrarMensagem("Key gerada");
 
 carregarKeys();
 
@@ -918,6 +961,8 @@ paused:!paused
 })
 .eq("key",key);
 
+mostrarMensagem("Status alterado");
+
 carregarKeys();
 
 }
@@ -932,6 +977,8 @@ await supabaseClient
 deleted:true
 })
 .eq("key",key);
+
+mostrarMensagem("Key deletada");
 
 carregarKeys();
 
@@ -989,6 +1036,57 @@ onclick="editarCreditos(${v.id},-10)">
 
 </div>
 
+<div style="
+display:flex;
+gap:10px;
+margin-top:15px;
+">
+
+<input
+type="number"
+id="cred_${v.id}"
+placeholder="Quantidade"
+style="
+flex:1;
+padding:12px;
+background:#0d0d0d;
+border:none;
+border-radius:12px;
+color:white;
+outline:none;
+"
+/>
+
+<button
+class="smallbtn play"
+style="
+padding:12px 18px;
+"
+onclick="editarCreditos(
+${v.id},
+parseInt(
+document.getElementById('cred_${v.id}').value
+)
+)">
+ADD
+</button>
+
+<button
+class="smallbtn pause"
+style="
+padding:12px 18px;
+"
+onclick="editarCreditos(
+${v.id},
+-parseInt(
+document.getElementById('cred_${v.id}').value
+)
+)">
+REM
+</button>
+
+</div>
+
 </div>
 
 `;
@@ -1000,6 +1098,14 @@ onclick="editarCreditos(${v.id},-10)">
 /* EDITAR CRÉDITOS */
 
 async function editarCreditos(id, valor){
+
+if(isNaN(valor)){
+
+mostrarMensagem("Digite um número");
+
+return;
+
+}
 
 const { data } =
 await supabaseClient
@@ -1016,6 +1122,8 @@ await supabaseClient
 creditos: atual + valor
 })
 .eq("id",id);
+
+mostrarMensagem("Créditos atualizados");
 
 carregarVendedores();
 
