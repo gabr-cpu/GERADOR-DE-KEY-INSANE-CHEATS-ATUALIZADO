@@ -857,9 +857,18 @@ area.innerHTML = "";
 
 data.forEach(item => {
 
-if(item.deleted) return;
+if(item.deleted == true) return;
 
-if(!admin){
+/* ADMIN VÊ SOMENTE AS KEYS DELE */
+
+if(admin){
+
+if(item.vendedor != "ADMIN")
+return;
+
+}else{
+
+/* VENDEDOR VÊ SOMENTE AS PRÓPRIAS KEYS */
 
 if(item.vendedor != vendedorLogado.usuario)
 return;
@@ -875,7 +884,7 @@ area.innerHTML += `
 <div>
 
 <div class="keycode">
-${item.codigo}
+${item.key}
 </div>
 
 <div class="info">
@@ -883,7 +892,7 @@ ${item.duracao}
 </div>
 
 <div class="info">
-${item.vendedor}
+Conta: ${item.vendedor}
 </div>
 
 </div>
@@ -896,10 +905,7 @@ item.paused
 ? 'play'
 : 'pause'
 }"
-onclick="togglePause(
-'${item.codigo}',
-${item.paused}
-)">
+onclick="togglePause('${item.key}', ${item.paused})">
 
 ${
 item.paused
@@ -911,10 +917,10 @@ item.paused
 
 <button
 class="smallbtn delete"
-onclick="deletar(
-'${item.codigo}'
-)">
+onclick="deletar('${item.key}')">
+
 DELETE
+
 </button>
 
 </div>
