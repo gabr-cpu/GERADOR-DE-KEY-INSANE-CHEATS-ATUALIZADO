@@ -65,7 +65,8 @@ margin-top:5px;
 margin-bottom:30px;
 }
 
-.login-box input{
+.login-box input,
+.login-box select{
 width:100%;
 padding:16px;
 background:#181818;
@@ -87,6 +88,12 @@ color:white;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
+}
+
+.switch{
+display:flex;
+gap:10px;
+margin-bottom:20px;
 }
 
 /* MENU */
@@ -199,7 +206,8 @@ margin-bottom:10px;
 color:#777;
 }
 
-.card input{
+.card input,
+.card select{
 width:100%;
 padding:16px;
 background:#0d0d0d;
@@ -252,6 +260,7 @@ gap:15px;
 background:#141414;
 padding:18px;
 border-radius:18px;
+margin-bottom:15px;
 }
 
 .keytop{
@@ -301,6 +310,12 @@ background:#220000;
 color:#ff4444;
 }
 
+.creditos{
+margin-top:15px;
+font-size:18px;
+color:#00ff88;
+}
+
 </style>
 </head>
 
@@ -320,6 +335,26 @@ INSANE
 PAINEL ADMIN
 </div>
 
+<div class="switch">
+
+<button
+class="login-btn"
+onclick="abrirAdm()">
+ADM
+</button>
+
+<button
+class="login-btn"
+onclick="abrirVendedor()">
+VENDEDOR
+</button>
+
+</div>
+
+<!-- ADM -->
+
+<div id="admArea">
+
 <input
 type="text"
 id="user"
@@ -334,9 +369,45 @@ placeholder="Senha"
 
 <button
 class="login-btn"
-onclick="login()">
+onclick="loginAdm()">
 ENTRAR
 </button>
+
+</div>
+
+<!-- VENDEDOR -->
+
+<div id="vendedorArea" style="display:none;">
+
+<input
+type="text"
+id="vuser"
+placeholder="Usuário"
+/>
+
+<input
+type="password"
+id="vpass"
+placeholder="Senha"
+/>
+
+<div style="display:flex;gap:10px;">
+
+<button
+class="login-btn"
+onclick="registrarVendedor()">
+CRIAR
+</button>
+
+<button
+class="login-btn"
+onclick="loginVendedor()">
+LOGIN
+</button>
+
+</div>
+
+</div>
 
 </div>
 
@@ -368,16 +439,31 @@ Gerar Keys
 Minhas Keys
 </button>
 
+<button
+id="btnVendedores"
+onclick="mostrarPagina('vendedores')">
+
+<i class="fa-solid fa-users"></i>
+Gerenciar Vendedores
+
+</button>
+
 </div>
 
 </div>
 
 <div class="profile">
 
-<h3>ADMIN</h3>
+<h3 id="perfilNome">
+ADMIN
+</h3>
 
-<p style="margin-top:5px;color:#777;">
+<p
+id="perfilCreditos"
+style="margin-top:5px;color:#777;">
+
 Sistema Online
+
 </p>
 
 </div>
@@ -400,19 +486,36 @@ GERAR <span>KEYS</span>
 
 <h2>NOVA KEY</h2>
 
-<label>Dias da key</label>
+<label>Escolha a duração</label>
 
-<input
-type="number"
-id="dias"
-placeholder="Ex: 30"
-/>
+<select id="dias">
+
+<option value="1">
+1 DIA - 10 CRÉDITOS
+</option>
+
+<option value="7">
+7 DIAS - 25 CRÉDITOS
+</option>
+
+<option value="10">
+10 DIAS - 30 CRÉDITOS
+</option>
+
+<option value="30">
+30 DIAS - 50 CRÉDITOS
+</option>
+
+</select>
 
 <button
 class="generate"
 onclick="gerarKey()">
 GERAR KEY
 </button>
+
+<div class="creditos" id="creditosArea">
+</div>
 
 <div class="lastkey">
 
@@ -436,9 +539,19 @@ INSANE-00000
 MINHAS <span>KEYS</span>
 </div>
 
-<div class="keylist" id="listaKeys">
+<div class="keylist" id="listaKeys"></div>
 
 </div>
+
+<!-- VENDEDORES -->
+
+<div class="page" id="vendedores">
+
+<div class="title">
+VENDEDORES
+</div>
+
+<div id="listaVendedores"></div>
 
 </div>
 
@@ -458,9 +571,34 @@ SUPABASE_URL,
 SUPABASE_KEY
 );
 
-/* LOGIN */
+let vendedorLogado = null;
+let admin = false;
 
-function login(){
+/* ABRIR TELAS */
+
+function abrirAdm(){
+
+document.getElementById("admArea")
+.style.display = "block";
+
+document.getElementById("vendedorArea")
+.style.display = "none";
+
+}
+
+function abrirVendedor(){
+
+document.getElementById("admArea")
+.style.display = "none";
+
+document.getElementById("vendedorArea")
+.style.display = "block";
+
+}
+
+/* LOGIN ADM */
+
+function loginAdm(){
 
 let user =
 document.getElementById("user").value;
@@ -473,14 +611,120 @@ user == "insane" &&
 pass == "cheats"
 ){
 
+admin = true;
+
 document.getElementById("loginScreen")
 .style.display = "none";
+
+document.getElementById("perfilNome")
+.innerHTML = "ADMIN";
+
+document.getElementById("perfilCreditos")
+.innerHTML = "Sistema Online";
+
+document.getElementById("creditosArea")
+.innerHTML = "CRÉDITOS ILIMITADOS";
+
+carregarVendedores();
 
 }else{
 
 alert("Login inválido");
 
 }
+
+}
+
+/* REGISTRAR */
+
+async function registrarVendedor(){
+
+let usuario =
+document.getElementById("vuser").value;
+
+let senha =
+document.getElementById("vpass").value;
+
+if(usuario == "" || senha == ""){
+
+alert("Preencha tudo");
+
+return;
+
+}
+
+const { data } =
+await supabaseClient
+.from("vendedores")
+.select("*")
+.eq("usuario",usuario);
+
+if(data.length > 0){
+
+alert("Usuário já existe");
+
+return;
+
+}
+
+await supabaseClient
+.from("vendedores")
+.insert([
+{
+usuario,
+senha,
+creditos:0
+}
+]);
+
+alert("Conta criada");
+
+}
+
+/* LOGIN VENDEDOR */
+
+async function loginVendedor(){
+
+let usuario =
+document.getElementById("vuser").value;
+
+let senha =
+document.getElementById("vpass").value;
+
+const { data } =
+await supabaseClient
+.from("vendedores")
+.select("*")
+.eq("usuario",usuario)
+.eq("senha",senha);
+
+if(data.length == 0){
+
+alert("Conta inválida");
+
+return;
+
+}
+
+vendedorLogado = data[0];
+
+document.getElementById("loginScreen")
+.style.display = "none";
+
+document.getElementById("btnVendedores")
+.style.display = "none";
+
+document.getElementById("perfilNome")
+.innerHTML = vendedorLogado.usuario;
+
+document.getElementById("perfilCreditos")
+.innerHTML =
+vendedorLogado.creditos + " créditos";
+
+document.getElementById("creditosArea")
+.innerHTML =
+"SEUS CRÉDITOS: " +
+vendedorLogado.creditos;
 
 }
 
@@ -506,6 +750,47 @@ document
 
 async function gerarKey(){
 
+let dias =
+document.getElementById("dias").value;
+
+let preco = 0;
+
+if(dias == 1) preco = 10;
+if(dias == 7) preco = 25;
+if(dias == 10) preco = 30;
+if(dias == 30) preco = 50;
+
+if(!admin){
+
+if(vendedorLogado.creditos < preco){
+
+alert("Sem créditos");
+
+return;
+
+}
+
+await supabaseClient
+.from("vendedores")
+.update({
+creditos:
+vendedorLogado.creditos - preco
+})
+.eq("id",vendedorLogado.id);
+
+vendedorLogado.creditos -= preco;
+
+document.getElementById("perfilCreditos")
+.innerHTML =
+vendedorLogado.creditos + " créditos";
+
+document.getElementById("creditosArea")
+.innerHTML =
+"SEUS CRÉDITOS: " +
+vendedorLogado.creditos;
+
+}
+
 let numero =
 Math.floor(
 10000 + Math.random() * 90000
@@ -514,17 +799,6 @@ Math.floor(
 let key =
 "INSANE-" + numero;
 
-let dias =
-document.getElementById("dias").value;
-
-if(dias == ""){
-
-alert("Digite os dias");
-
-return;
-
-}
-
 await supabaseClient
 .from("keys")
 .insert([
@@ -532,7 +806,11 @@ await supabaseClient
 key:key,
 duracao:dias + " DIAS",
 paused:false,
-deleted:false
+deleted:false,
+vendedor:
+admin
+? "ADMIN"
+: vendedorLogado.usuario
 }
 ]);
 
@@ -562,6 +840,13 @@ data.forEach(item => {
 
 if(item.deleted == true) return;
 
+if(!admin){
+
+if(item.vendedor != vendedorLogado.usuario)
+return;
+
+}
+
 area.innerHTML += `
 
 <div class="key">
@@ -576,6 +861,10 @@ ${item.key}
 
 <div class="info">
 ${item.duracao}
+</div>
+
+<div class="info">
+Vendedor: ${item.vendedor}
 </div>
 
 </div>
@@ -633,7 +922,7 @@ carregarKeys();
 
 }
 
-/* DELETAR */
+/* DELETE */
 
 async function deletar(key){
 
@@ -645,6 +934,90 @@ deleted:true
 .eq("key",key);
 
 carregarKeys();
+
+}
+
+/* VENDEDORES */
+
+async function carregarVendedores(){
+
+const { data } =
+await supabaseClient
+.from("vendedores")
+.select("*");
+
+const area =
+document.getElementById("listaVendedores");
+
+area.innerHTML = "";
+
+data.forEach(v => {
+
+area.innerHTML += `
+
+<div class="key">
+
+<div class="keytop">
+
+<div>
+
+<div class="keycode">
+${v.usuario}
+</div>
+
+<div class="info">
+${v.creditos} créditos
+</div>
+
+</div>
+
+<div class="btns">
+
+<button
+class="smallbtn play"
+onclick="editarCreditos(${v.id},10)">
++10
+</button>
+
+<button
+class="smallbtn pause"
+onclick="editarCreditos(${v.id},-10)">
+-10
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+/* EDITAR CRÉDITOS */
+
+async function editarCreditos(id, valor){
+
+const { data } =
+await supabaseClient
+.from("vendedores")
+.select("*")
+.eq("id",id);
+
+let atual =
+data[0].creditos;
+
+await supabaseClient
+.from("vendedores")
+.update({
+creditos: atual + valor
+})
+.eq("id",id);
+
+carregarVendedores();
 
 }
 
