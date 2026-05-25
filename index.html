@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -26,18 +27,6 @@ color:white;
 height:100vh;
 display:flex;
 overflow:hidden;
-}
-
-#toast{
-position:fixed;
-top:20px;
-right:20px;
-background:#111;
-padding:15px 20px;
-border-radius:15px;
-border:1px solid red;
-display:none;
-z-index:9999;
 }
 
 /* LOGIN */
@@ -77,8 +66,7 @@ margin-top:5px;
 margin-bottom:30px;
 }
 
-.login-box input,
-.login-box select{
+.login-box input{
 width:100%;
 padding:16px;
 background:#181818;
@@ -100,12 +88,6 @@ color:white;
 font-size:16px;
 font-weight:bold;
 cursor:pointer;
-}
-
-.switch{
-display:flex;
-gap:10px;
-margin-bottom:20px;
 }
 
 /* MENU */
@@ -218,8 +200,7 @@ margin-bottom:10px;
 color:#777;
 }
 
-.card input,
-.card select{
+.card input{
 width:100%;
 padding:16px;
 background:#0d0d0d;
@@ -258,6 +239,14 @@ font-size:13px;
 margin-top:10px;
 font-size:28px;
 color:#ff0000;
+}
+
+/* KEYS */
+
+.keylist{
+display:flex;
+flex-direction:column;
+gap:15px;
 }
 
 .key{
@@ -314,18 +303,10 @@ background:#220000;
 color:#ff4444;
 }
 
-.creditos{
-margin-top:15px;
-font-size:18px;
-color:#00ff88;
-}
-
 </style>
 </head>
 
 <body>
-
-<div id="toast"></div>
 
 <!-- LOGIN -->
 
@@ -340,24 +321,6 @@ INSANE
 <div class="login-sub">
 PAINEL ADMIN
 </div>
-
-<div class="switch">
-
-<button
-class="login-btn"
-onclick="abrirAdm()">
-ADM
-</button>
-
-<button
-class="login-btn"
-onclick="abrirVendedor()">
-VENDEDOR
-</button>
-
-</div>
-
-<div id="admArea">
 
 <input
 type="text"
@@ -376,40 +339,6 @@ class="login-btn"
 onclick="loginAdm()">
 ENTRAR
 </button>
-
-</div>
-
-<div id="vendedorArea" style="display:none;">
-
-<input
-type="text"
-id="vuser"
-placeholder="Usuário"
-/>
-
-<input
-type="password"
-id="vpass"
-placeholder="Senha"
-/>
-
-<div style="display:flex;gap:10px;">
-
-<button
-class="login-btn"
-onclick="registrarVendedor()">
-CRIAR
-</button>
-
-<button
-class="login-btn"
-onclick="loginVendedor()">
-LOGIN
-</button>
-
-</div>
-
-</div>
 
 </div>
 
@@ -441,27 +370,17 @@ Gerar Keys
 Minhas Keys
 </button>
 
-<button
-id="btnVendedores"
-onclick="mostrarPagina('vendedores')">
-
-<i class="fa-solid fa-users"></i>
-Gerenciar Vendedores
-
-</button>
-
 </div>
 
 </div>
 
 <div class="profile">
 
-<h3 id="perfilNome">
+<h3>
 ADMIN
 </h3>
 
-<p id="perfilCreditos"
-style="margin-top:5px;color:#777;">
+<p style="margin-top:5px;color:#777;">
 Sistema Online
 </p>
 
@@ -473,6 +392,8 @@ Sistema Online
 
 <div class="content">
 
+<!-- GERAR -->
+
 <div class="page active" id="gerar">
 
 <div class="title">
@@ -483,35 +404,19 @@ GERAR <span>KEYS</span>
 
 <h2>NOVA KEY</h2>
 
-<label>Escolha a duração</label>
+<label>Digite a duração</label>
 
-<select id="dias">
-
-<option value="1">
-1 DIA - 10 CRÉDITOS
-</option>
-
-<option value="7">
-7 DIAS - 25 CRÉDITOS
-</option>
-
-<option value="10">
-10 DIAS - 30 CRÉDITOS
-</option>
-
-<option value="30">
-30 DIAS - 50 CRÉDITOS
-</option>
-
-</select>
+<input
+type="number"
+id="dias"
+placeholder="Digite os dias"
+/>
 
 <button
 class="generate"
 onclick="gerarKey()">
 GERAR KEY
 </button>
-
-<div class="creditos" id="creditosArea"></div>
 
 <div class="lastkey">
 
@@ -527,23 +432,15 @@ INSANE-00000
 
 </div>
 
+<!-- KEYS -->
+
 <div class="page" id="keys">
 
 <div class="title">
 MINHAS <span>KEYS</span>
 </div>
 
-<div id="listaKeys"></div>
-
-</div>
-
-<div class="page" id="vendedores">
-
-<div class="title">
-VENDEDORES
-</div>
-
-<div id="listaVendedores"></div>
+<div class="keylist" id="listaKeys"></div>
 
 </div>
 
@@ -555,7 +452,7 @@ const SUPABASE_URL =
 "https://oalyokjoixouwywxfmtz.supabase.co";
 
 const SUPABASE_KEY =
-"COLOCA_SUA_KEY";
+"sb_publishable_kg2nublKacXnCFQWQaA0QA_jv1C_-Hp";
 
 const supabaseClient =
 supabase.createClient(
@@ -563,49 +460,7 @@ SUPABASE_URL,
 SUPABASE_KEY
 );
 
-let vendedorLogado = null;
-let admin = false;
-
-function mostrarMensagem(texto){
-
-const toast =
-document.getElementById("toast");
-
-toast.innerHTML = texto;
-
-toast.style.display = "block";
-
-setTimeout(() => {
-
-toast.style.display = "none";
-
-},3000);
-
-}
-
-/* TELAS */
-
-function abrirAdm(){
-
-document.getElementById("admArea")
-.style.display = "block";
-
-document.getElementById("vendedorArea")
-.style.display = "none";
-
-}
-
-function abrirVendedor(){
-
-document.getElementById("admArea")
-.style.display = "none";
-
-document.getElementById("vendedorArea")
-.style.display = "block";
-
-}
-
-/* LOGIN ADM */
+/* LOGIN */
 
 function loginAdm(){
 
@@ -620,117 +475,16 @@ user == "insane" &&
 pass == "cheats"
 ){
 
-admin = true;
-
 document.getElementById("loginScreen")
 .style.display = "none";
 
-document.getElementById("perfilNome")
-.innerHTML = "ADMIN";
-
-document.getElementById("creditosArea")
-.innerHTML =
-"CRÉDITOS ILIMITADOS";
-
-carregarVendedores();
 carregarKeys();
 
 }else{
 
-mostrarMensagem("Login inválido");
+alert("Login inválido");
 
 }
-
-}
-
-/* REGISTRAR */
-
-async function registrarVendedor(){
-
-let usuario =
-document.getElementById("vuser").value;
-
-let senha =
-document.getElementById("vpass").value;
-
-const { data } =
-await supabaseClient
-.from("vendedores")
-.select("*")
-.eq("usuario",usuario);
-
-if(data.length > 0){
-
-mostrarMensagem("Usuário existe");
-
-return;
-
-}
-
-await supabaseClient
-.from("vendedores")
-.insert([
-{
-usuario,
-senha,
-creditos:0
-}
-]);
-
-mostrarMensagem("Conta criada");
-
-}
-
-/* LOGIN */
-
-async function loginVendedor(){
-
-let usuario =
-document.getElementById("vuser").value;
-
-let senha =
-document.getElementById("vpass").value;
-
-const { data } =
-await supabaseClient
-.from("vendedores")
-.select("*")
-.eq("usuario",usuario)
-.eq("senha",senha);
-
-if(data.length == 0){
-
-mostrarMensagem("Conta inválida");
-
-return;
-
-}
-
-vendedorLogado = data[0];
-
-document.getElementById("loginScreen")
-.style.display = "none";
-
-document.getElementById("btnVendedores")
-.style.display = "none";
-
-document.getElementById("perfilNome")
-.innerHTML =
-vendedorLogado.usuario;
-
-document.getElementById("perfilCreditos")
-.innerHTML =
-vendedorLogado.creditos +
-" créditos";
-
-document.getElementById("creditosArea")
-.innerHTML =
-"SEUS CRÉDITOS: " +
-vendedorLogado.creditos;
-
-await carregarKeys();
-
-mostrarPagina("keys");
 
 }
 
@@ -752,46 +506,18 @@ document
 
 }
 
-/* GERAR */
+/* GERAR KEY */
 
 async function gerarKey(){
 
 let dias =
 document.getElementById("dias").value;
 
-let preco = 0;
+if(dias == ""){
 
-if(dias == 1) preco = 10;
-if(dias == 7) preco = 25;
-if(dias == 10) preco = 30;
-if(dias == 30) preco = 50;
-
-if(!admin){
-
-if(vendedorLogado.creditos < preco){
-
-mostrarMensagem("Sem créditos");
+alert("Digite os dias");
 
 return;
-
-}
-
-let novoCredito =
-vendedorLogado.creditos - preco;
-
-await supabaseClient
-.from("vendedores")
-.update({
-creditos:novoCredito
-})
-.eq("id",vendedorLogado.id);
-
-vendedorLogado.creditos =
-novoCredito;
-
-document.getElementById("perfilCreditos")
-.innerHTML =
-novoCredito + " créditos";
 
 }
 
@@ -800,47 +526,29 @@ Math.floor(
 10000 + Math.random() * 90000
 );
 
-let codigo =
+let key =
 "INSANE-" + numero;
 
-const { error } =
 await supabaseClient
 .from("keys")
 .insert([
 {
-codigo:codigo,
+key:key,
 duracao:dias + " DIAS",
 paused:false,
 deleted:false,
-vendedor:
-admin
-? "ADMIN"
-: vendedorLogado.usuario
+vendedor:"ADMIN"
 }
 ]);
 
-if(error){
-
-console.log(error);
-
-mostrarMensagem("Erro salvar key");
-
-return;
-
-}
-
 document.getElementById("ultimakey")
-.innerHTML = codigo;
+.innerHTML = key;
 
-mostrarMensagem("Key gerada");
-
-await carregarKeys();
-
-mostrarPagina("keys");
+carregarKeys();
 
 }
 
-/* KEYS */
+/* CARREGAR KEYS */
 
 async function carregarKeys(){
 
@@ -859,22 +567,6 @@ data.forEach(item => {
 
 if(item.deleted == true) return;
 
-/* ADMIN VÊ SOMENTE AS KEYS DELE */
-
-if(admin){
-
-if(item.vendedor != "ADMIN")
-return;
-
-}else{
-
-/* VENDEDOR VÊ SOMENTE AS PRÓPRIAS KEYS */
-
-if(item.vendedor != vendedorLogado.usuario)
-return;
-
-}
-
 area.innerHTML += `
 
 <div class="key">
@@ -892,7 +584,7 @@ ${item.duracao}
 </div>
 
 <div class="info">
-Conta: ${item.vendedor}
+Conta: ${item.vendedor || "ADMIN"}
 </div>
 
 </div>
@@ -935,16 +627,16 @@ DELETE
 
 }
 
-/* PAUSE */
+/* PAUSAR */
 
-async function togglePause(codigo,paused){
+async function togglePause(key, paused){
 
 await supabaseClient
 .from("keys")
 .update({
 paused:!paused
 })
-.eq("codigo",codigo);
+.eq("key",key);
 
 carregarKeys();
 
@@ -952,102 +644,20 @@ carregarKeys();
 
 /* DELETE */
 
-async function deletar(codigo){
+async function deletar(key){
 
 await supabaseClient
 .from("keys")
 .update({
 deleted:true
 })
-.eq("codigo",codigo);
+.eq("key",key);
 
 carregarKeys();
 
 }
 
-/* VENDEDORES */
-
-async function carregarVendedores(){
-
-const { data } =
-await supabaseClient
-.from("vendedores")
-.select("*");
-
-const area =
-document.getElementById("listaVendedores");
-
-area.innerHTML = "";
-
-data.forEach(v => {
-
-area.innerHTML += `
-
-<div class="key">
-
-<div class="keytop">
-
-<div>
-
-<div class="keycode">
-${v.usuario}
-</div>
-
-<div class="info">
-${v.creditos} créditos
-</div>
-
-</div>
-
-<div class="btns">
-
-<button
-class="smallbtn play"
-onclick="editarCreditos(${v.id},10)">
-+10
-</button>
-
-<button
-class="smallbtn pause"
-onclick="editarCreditos(${v.id},-10)">
--10
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-
-/* CREDITOS */
-
-async function editarCreditos(id,valor){
-
-const { data } =
-await supabaseClient
-.from("vendedores")
-.select("*")
-.eq("id",id);
-
-let atual =
-data[0].creditos;
-
-await supabaseClient
-.from("vendedores")
-.update({
-creditos: atual + valor
-})
-.eq("id",id);
-
-carregarVendedores();
-
-}
+carregarKeys();
 
 </script>
 
