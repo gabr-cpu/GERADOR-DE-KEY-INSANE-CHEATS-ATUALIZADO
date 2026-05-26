@@ -433,8 +433,6 @@ transform:scale(1.05);
 
 <body>
 
-<!-- LOGIN -->
-
 <div id="loginScreen">
 
 <div class="login-box">
@@ -468,8 +466,6 @@ ENTRAR
 </div>
 
 </div>
-
-<!-- SIDEBAR -->
 
 <div class="sidebar">
 
@@ -514,11 +510,7 @@ Todas Keys
 
 </div>
 
-<!-- CONTENT -->
-
 <div class="content">
-
-<!-- DASHBOARD -->
 
 <div class="page active" id="dashboard">
 
@@ -551,8 +543,6 @@ INSANE <span>DASHBOARD</span>
 </div>
 
 </div>
-
-<!-- GERAR -->
 
 <div class="page" id="gerar">
 
@@ -595,8 +585,6 @@ INSANE-00000
 </div>
 
 </div>
-
-<!-- KEYS -->
 
 <div class="page" id="keys">
 
@@ -698,6 +686,7 @@ Math.floor(
 let key =
 "INSANE-" + numero;
 
+const { error } =
 await supabaseClient
 .from("keys")
 .insert([
@@ -705,12 +694,20 @@ await supabaseClient
 key:key,
 duracao:
 dias == 999
-? INFINITO"
+? "INFINITO"
 : dias + " DIAS",
 paused:false,
 deleted:false
 }
 ]);
+
+if(error){
+
+alert("Erro ao gerar key");
+console.log(error);
+return;
+
+}
 
 document.getElementById("ultimakey")
 .innerHTML = key;
@@ -724,12 +721,17 @@ carregarDashboard();
 
 async function carregarDashboard(){
 
-const { data } =
+const { data, error } =
 await supabaseClient
 .from("keys")
 .select("*");
 
-if(!data) return;
+if(error){
+
+console.log(error);
+return;
+
+}
 
 let total = 0;
 let pausadas = 0;
@@ -768,18 +770,23 @@ document.getElementById("keysPausadas")
 
 async function carregarKeys(){
 
-const { data } =
+const { data, error } =
 await supabaseClient
 .from("keys")
 .select("*")
 .order("id",{ascending:false});
 
+if(error){
+
+console.log(error);
+return;
+
+}
+
 const area =
 document.getElementById("listaKeys");
 
 area.innerHTML = "";
-
-if(!data) return;
 
 data.forEach(item => {
 
